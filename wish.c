@@ -1,6 +1,10 @@
 #include <stdio.h>
 #include <stdlib.h>
 #include <string.h>
+#include <unistd.h>
+
+char * path[10];
+
 
 
 int string_break(char * line, char * tokens[])
@@ -20,11 +24,55 @@ int string_break(char * line, char * tokens[])
 	return i;
 }
 
+void print_tokens(char * tokens[])
+{
+	int i = 0;
+	while(1)
+	{
+		if(tokens[i] == NULL)
+			break;
+		else
+		{
+			printf("%s ", tokens[i]);
+		}
+		i++;
+	}
+}
+
+void update_path(char * tokens[])
+{
+	int i = 0;
+	while(1)
+	{
+		if(tokens[i] == NULL)
+		{
+			path[i] = tokens[i];
+			break;
+		}
+		else
+		{
+			path[i] = tokens[i];
+		}
+		i++;
+	}
+}
+
+void change_directory(char * token[])
+{
+	if(chdir(token[0]) == -1)
+	{
+		exit(1);
+	}
+}
+
+
+
 int main()
 {
 	char * line = NULL;
 	size_t input_size = 0;
 	char * input_tokens[10];
+
 
 	while(1)
 	{
@@ -45,6 +93,29 @@ int main()
 		else
 		{
 			int input_len = string_break(line, input_tokens);
+
+			if(strcmp(input_tokens[0], "path") == 0)
+			{
+				//Code for path command
+				update_path(input_tokens + 1);
+				print_tokens(path);
+			}
+
+			if(strcmp(input_tokens[0], "cd") == 0)
+			{
+				//Code for cd command
+				if(input_len > 2)
+				{
+					exit(1);
+				}
+				change_directory(input_tokens + 1);
+			}
+
+			if(strcmp(input_tokens[0], "exit") == 0)
+			{
+				//Code for exit command
+				exit(0);
+			}		
 		}
 	}
 }
