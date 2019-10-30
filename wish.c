@@ -65,6 +65,22 @@ void change_directory(char * token[])
 	}
 }
 
+int check_redirection(char * tokens[])
+{
+	int  i = 0;
+
+	while(1)
+	{
+		if(tokens[i] == NULL)
+			break;
+		if(strcmp(tokens[i], ">") == 0)
+			return i;
+		i++;
+	}
+	return -1;
+}
+
+
 
 
 int main()
@@ -73,6 +89,8 @@ int main()
 	size_t input_size = 0;
 	char * input_tokens[10];
 
+	int redirection;
+	char * redirection_file;
 
 	while(1)
 	{
@@ -115,7 +133,23 @@ int main()
 			{
 				//Code for exit command
 				exit(0);
-			}		
+			}	
+
+			int redirection_index = check_redirection(input_tokens);
+			if(redirection_index == -1)
+			{
+				redirection = 0;
+			}
+			else if (input_len > redirection_index + 2)
+			{
+				exit(1);
+			}
+			else
+			{
+				redirection = 1;
+				redirection_file = input_tokens[redirection_index + 1];
+				input_tokens[redirection_index] = NULL;
+			}	
 		}
 	}
 }
