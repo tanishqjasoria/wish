@@ -4,8 +4,8 @@
 #include <unistd.h>
 #include <sys/types.h>
 #include <sys/wait.h>
+#include <sys/stat.h>
 #include <fcntl.h>
-#include <unistd.h>
 
 
 char * path[10];
@@ -202,7 +202,12 @@ int main()
       {
         // When a child is created using  the fork call, the value
         // returned is 0.
-
+        if(redirection)
+        {
+          int fd = creat(redirection_file, 0644);
+          dup2(fd, STDOUT_FILENO);
+          dup2(fd, STDERR_FILENO);
+        }
         int ret_exec = execv(input_tokens[0], input_tokens);
         if(ret_exec == -1)
           exit(1);
