@@ -2,9 +2,13 @@
 #include <stdlib.h>
 #include <string.h>
 #include <unistd.h>
+#include <sys/types.h>
+#include <sys/wait.h>
+#include <fcntl.h>
+#include <unistd.h>
+
 
 char * path[10];
-
 
 
 int string_break(char * line, char * tokens[])
@@ -84,6 +88,32 @@ int check_redirection(char * tokens[])
   return -1;
 }
 
+int get_path(char * tokens[])
+{
+  char temp_path[20];
+  
+  int i = 0;
+  while(1)
+  {
+    if(path[i] == NULL)
+      break;
+    else
+    {
+      strcpy(temp_path, path[i]);
+      strcat(temp_path, tokens[0]);
+      int  ret_access = access(temp_path, X_OK);
+      if(ret_access == 0)
+      {
+        tokens[0] = (char *)malloc(strlen(temp_path) + 1);
+        strcpy(tokens[0], temp_path);
+        return 0;
+      }
+    }
+    i++;
+  }
+  return -1;
+}
+
 
 
 
@@ -156,8 +186,33 @@ int main()
         redirection_file = input_tokens[redirection_index + 1];
         input_tokens[redirection_index] = NULL;
       }
+
+
+      int ret = get_path(input_tokens);
+      if(ret == -1)
+        exit(1);
+
+
+      int rc = fork();
+      if(rc < 0)
+      {
+        exit(1);
+      }
+      else if(rc == 0)
+      {
+        // When a child is created using  the fork call, the value
+        // returned is 0.
+
+        int ret_exec = execv(input_tokens[0], input_tokens);
+        if(ret_exec == -1)
+          exit(1);
+      }
+      else
+      {
+        wait(NULL);
+      }
       
-      
+
     }
   }
 }
