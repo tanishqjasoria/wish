@@ -30,7 +30,10 @@ void print_tokens(char * tokens[])
   while(1)
   {
     if(tokens[i] == NULL)
+    {
+      printf("\n");
       break;
+    }
     else
     {
       printf("%s ", tokens[i]);
@@ -46,12 +49,13 @@ void update_path(char * tokens[])
   {
     if(tokens[i] == NULL)
     {
-      path[i] = tokens[i];
+      path[i] = NULL;
       break;
     }
     else
     {
-      path[i] = tokens[i];
+      path[i] =(char *) malloc(strlen(tokens[i]) + 1);
+      strcpy(path[i], tokens[i]);
     }
     i++;
   }
