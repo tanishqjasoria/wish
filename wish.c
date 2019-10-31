@@ -73,7 +73,7 @@ void change_directory(char * token[])
   }
 }
 
-int check_redirection(char * tokens[])
+int check_redirection(char * tokens[], int * in_out)
 {
   int  i = 0;
 
@@ -82,9 +82,18 @@ int check_redirection(char * tokens[])
     if(tokens[i] == NULL)
       break;
     if(strcmp(tokens[i], ">") == 0)
+    {
+      *in_out = 1;
       return i;
+    }
+    if(strcmp(tokens[i], "<") == 0)
+    {
+      *in_out = 2;
+      return i;
+    }
     i++;
   }
+  *in_out = 0;
   return -1;
 }
 
@@ -123,7 +132,7 @@ int main()
   size_t input_size = 0;
   char * input_tokens[10];
 
-  int redirection;
+  int in_out;
   char * redirection_file;
 
   while(1)
@@ -171,18 +180,14 @@ int main()
         exit(0);
       } 
 
-      int redirection_index = check_redirection(input_tokens);
-      if(redirection_index == -1)
-      {
-        redirection = 0;
-      }
-      else if (input_len > redirection_index + 2)
+      int redirection_index = check_redirection(input_tokens, &in_out);
+      
+      if ((input_len > redirection_index + 2) && (in_out !=0))
       {
         exit(1);
       }
       else
       {
-        redirection = 1;
         redirection_file = input_tokens[redirection_index + 1];
         input_tokens[redirection_index] = NULL;
       }
@@ -202,11 +207,18 @@ int main()
       {
         // When a child is created using  the fork call, the value
         // returned is 0.
-        if(redirection)
+        if(in_out == 1)
         {
           int fd = creat(redirection_file, 0644);
           dup2(fd, STDOUT_FILENO);
           dup2(fd, STDERR_FILENO);
+          close(fd);
+        }
+        else if(in_out == 2)
+        {
+          int fd = open(redirection_file, O_RDONLY);
+          dup2(fd, STDIN_FILENO);
+          close(fd);
         }
         int ret_exec = execv(input_tokens[0], input_tokens);
         if(ret_exec == -1)
