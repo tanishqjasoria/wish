@@ -121,6 +121,7 @@ int main()
         //Code for path command
         update_path(input_tokens + 1);
         print_tokens(path);
+        continue;
       }
 
       if(strcmp(input_tokens[0], "cd") == 0)
@@ -131,6 +132,7 @@ int main()
           exit(1);
         }
         change_directory(input_tokens + 1);
+        continue;
       }
 
       if(strcmp(input_tokens[0], "exit") == 0)
